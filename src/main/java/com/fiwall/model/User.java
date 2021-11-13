@@ -28,10 +28,10 @@ public class User {
     private UUID id;
 
     @NotNull
-    private String firstName;
+    private String fullName;
 
     @NotNull
-    private String lastName;
+    private String document;
 
     @Email
     private String email;
@@ -39,6 +39,7 @@ public class User {
     @NotNull
     private String password;
 
+    //opcional
     private BigDecimal balanceWallet;
 
     @CreatedDate
