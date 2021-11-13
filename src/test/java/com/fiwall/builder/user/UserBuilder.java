@@ -16,9 +16,8 @@ public class UserBuilder {
         builder.user = User.builder()
                 .id(UUID.randomUUID())
                 .email("admin@admin.com")
-                .firstName("Admin")
-                .lastName("Admin")
-                .password(builder.bCrypt.encode(("admin")))
+                .fullName("Admin Admin")
+                .password(builder.bCrypt.encode(("admin@2021")))
                 .createdDate(LocalDateTime.now())
                 .build();
         return builder;
