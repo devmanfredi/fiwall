@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 @ActiveProfiles("test")
-class UserControllerTest {
+class OauthControllerTest {
 
     @Autowired
     private MockMvc mvc;
@@ -35,7 +35,7 @@ class UserControllerTest {
     @Transactional
     void givenNewUser_whenRegister_shouldReturnUser() throws Exception {
         UserRequestDto user = UserRequestBuilder.usuarioAdmin().build();
-        String URI = "/user";
+        String URI = "/oauth/signup";
         ResultActions perform = mvc.perform(post(URI)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(user)))
