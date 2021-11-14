@@ -5,11 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.util.UUID;
 
+@Entity
 @Builder
 @Data
 @AllArgsConstructor
@@ -25,7 +27,5 @@ public class Account {
     private String agency;
 
     private String institution;
-
-    private Wallet owner;
 
 }
