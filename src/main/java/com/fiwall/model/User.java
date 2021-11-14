@@ -13,7 +13,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -38,9 +37,6 @@ public class User {
 
     @NotNull
     private String password;
-
-    //opcional
-    private BigDecimal balanceWallet;
 
     @CreatedDate
     private LocalDateTime createdDate;
