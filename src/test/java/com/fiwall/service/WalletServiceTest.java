@@ -14,8 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
@@ -44,7 +42,7 @@ class WalletServiceTest {
     @Test
     void givenWalletWithUserAndAccount_whenCreate_shouldReturnWallet() {
 
-        user.setId(UUID.randomUUID());
+        user.setId(10L);
         wallet.setUser(user);
         wallet.setAccount(account);
 
@@ -63,7 +61,7 @@ class WalletServiceTest {
         wallet = WalletBuilder.wallet().build();
         account = AccountBuilder.account().build();
 
-        user.setId(UUID.randomUUID());
+        user.setId(10L);
         wallet.setUser(user);
         wallet.setAccount(account);
 

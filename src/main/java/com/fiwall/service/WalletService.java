@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -21,7 +20,7 @@ public class WalletService {
         return walletRepository.save(wallet);
     }
 
-    public Wallet getWallet(UUID id) {
+    public Wallet getWallet(Long id) {
         return walletRepository.findWalletByUserId(id);
     }
 }

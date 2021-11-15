@@ -3,29 +3,25 @@ package com.fiwall.controller;
 import com.fiwall.builder.user.AccountBuilder;
 import com.fiwall.builder.user.UserBuilder;
 import com.fiwall.builder.user.WalletBuilder;
-import com.fiwall.dto.UserRequestDto;
 import com.fiwall.model.Account;
 import com.fiwall.model.User;
 import com.fiwall.model.Wallet;
 import com.fiwall.service.UserService;
+import com.fiwall.service.WalletService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
-import static com.fiwall.util.TestUtil.convertObjectToJsonBytes;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,6 +38,9 @@ class WalletControllerTest {
     @MockBean
     private UserService userService;
 
+    @MockBean
+    private WalletService walletService;
+
     User user;
     Wallet wallet;
     Account account;
@@ -57,21 +56,35 @@ class WalletControllerTest {
     @Test
     @Transactional
     void givenUserRequestDto_whenCreateWallet_shouldReturnWallet() throws Exception {
-        user.setId(UUID.randomUUID());
-        var userRequestDto = new UserRequestDto();
-        BeanUtils.copyProperties(user, userRequestDto);
+        user.setId(10L);
 
-        when(userService.findUserByDocument(userRequestDto.getDocument())).thenReturn(user);
+        when(userService.findUserById(user.getId())).thenReturn(user);
 
         String URI = "/wallet";
 
-        ResultActions perform = mvc.perform(post(URI)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(convertObjectToJsonBytes(userRequestDto)))
-                .andExpect(status().isCreated());
+        ResultActions perform = mvc.perform(post(URI + "/" + user.getId()));
+        perform.andExpect(status().is(201));
 
         perform.andExpect(jsonPath("$.balance", is(0)));
         perform.andExpect(jsonPath("$.user.id", is(user.getId().toString())));
+
+
+    }
+
+    @Test
+    void givenUserId_whenWhenSearchWallet_shouldReturnWallet() throws Exception {
+        wallet.setUser(user);
+        wallet.setAccount(account);
+
+        when(walletService.getWallet(user.getId())).thenReturn(wallet);
+
+        String URI = "/wallet";
+
+        ResultActions perform = mvc.perform(get(URI + "/" + user.getId()));
+        perform.andExpect(status().is(201));
+
+        perform.andExpect(jsonPath("$.balance", is(25000)));
+        perform.andExpect(jsonPath("$.user.id", is(10)));
 
 
     }
