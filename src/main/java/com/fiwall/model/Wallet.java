@@ -22,11 +22,11 @@ public class Wallet {
 
     private BigDecimal balance;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
-    private Account account;
+//    @OneToOne(fetch = FetchType.LAZY)
+@OneToOne
+private Account account;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    //    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     private User user;
 }
