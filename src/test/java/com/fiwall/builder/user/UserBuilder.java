@@ -17,6 +17,7 @@ public class UserBuilder {
                 .id(UUID.randomUUID())
                 .email("admin@admin.com")
                 .fullName("Admin Admin")
+                .document("02205652281")
                 .password(builder.bCrypt.encode(("admin@2021")))
                 .createdDate(LocalDateTime.now())
                 .build();
