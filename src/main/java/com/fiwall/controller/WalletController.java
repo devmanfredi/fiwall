@@ -30,4 +30,10 @@ public class WalletController {
         walletService.create(wallet);
         return wallet;
     }
+
+    @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Wallet findWalletByUserId(@PathVariable Long userId) {
+        return walletService.getWallet(userId);
+    }
 }
