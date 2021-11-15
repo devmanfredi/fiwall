@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Objects;
+
 @Service
 public class UserService {
 
@@ -33,6 +35,11 @@ public class UserService {
 
     private void validDocument(String document) {
         if (isDocumentExists(document)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, DOCUMENTO_CADASTRADO);
+        if (isDocumentNull(document)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sem Documento");
+    }
+
+    private boolean isDocumentNull(String document) {
+        return Objects.isNull(document);
     }
 
     private boolean isDocumentExists(String document) {
@@ -49,5 +56,9 @@ public class UserService {
 
     public User findUserByDocument(String document) {
         return userRepository.findByDocument(document).get();
+    }
+
+    public User findUserById(Long userId) {
+        return userRepository.findById(userId).get();
     }
 }
