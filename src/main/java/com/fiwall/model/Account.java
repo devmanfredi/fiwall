@@ -24,7 +24,7 @@ public class Account {
 
     private Integer numberAccount;
 
-    private String agency;
+    private Integer agency;
 
     private String institution;
 
