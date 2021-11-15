@@ -9,5 +9,6 @@ import java.util.UUID;
 @Repository
 public interface WalletRepository extends CrudRepository<Wallet, UUID> {
 
+    Wallet findWalletByUserId(UUID id);
 
 }
