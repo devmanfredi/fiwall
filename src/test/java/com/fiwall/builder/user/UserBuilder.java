@@ -4,7 +4,6 @@ import com.fiwall.model.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 public class UserBuilder {
     private BCryptPasswordEncoder bCrypt;
@@ -14,7 +13,7 @@ public class UserBuilder {
         UserBuilder builder = new UserBuilder();
         builder.bCrypt = new BCryptPasswordEncoder();
         builder.user = User.builder()
-                .id(UUID.randomUUID())
+                .id(10L)
                 .email("admin@admin.com")
                 .fullName("Admin Admin")
                 .document("02205652281")

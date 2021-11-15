@@ -1,6 +1,5 @@
 package com.fiwall.controller;
 
-import com.fiwall.dto.UserRequestDto;
 import com.fiwall.model.Wallet;
 import com.fiwall.service.AccountService;
 import com.fiwall.service.UserService;
@@ -19,12 +18,12 @@ public class WalletController {
     private final WalletService walletService;
     private final AccountService accountService;
 
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
-    public Wallet create(@RequestBody UserRequestDto userRequestDto) {
+    public Wallet create(@PathVariable Long userId) {
         var wallet = new Wallet();
         var account = accountService.createAccount();
-        var user = userService.findUserByDocument(userRequestDto.getDocument());
+        var user = userService.findUserById(userId);
 
         wallet.setUser(user);
         wallet.setAccount(account);
