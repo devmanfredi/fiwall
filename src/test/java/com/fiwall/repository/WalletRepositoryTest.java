@@ -1,7 +1,7 @@
 package com.fiwall.repository;
 
 
-import com.fiwall.builder.user.WalletBuilder;
+import com.fiwall.builder.wallet.WalletBuilder;
 import com.fiwall.model.Wallet;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

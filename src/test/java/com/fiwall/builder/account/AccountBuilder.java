@@ -1,4 +1,4 @@
-package com.fiwall.builder.user;
+package com.fiwall.builder.account;
 
 import com.fiwall.model.Account;
 

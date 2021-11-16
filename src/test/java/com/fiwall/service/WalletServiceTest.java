@@ -1,8 +1,8 @@
 package com.fiwall.service;
 
-import com.fiwall.builder.user.AccountBuilder;
+import com.fiwall.builder.account.AccountBuilder;
 import com.fiwall.builder.user.UserBuilder;
-import com.fiwall.builder.user.WalletBuilder;
+import com.fiwall.builder.wallet.WalletBuilder;
 import com.fiwall.model.Account;
 import com.fiwall.model.User;
 import com.fiwall.model.Wallet;

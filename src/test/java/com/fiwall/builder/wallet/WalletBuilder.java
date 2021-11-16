@@ -1,4 +1,4 @@
-package com.fiwall.builder.user;
+package com.fiwall.builder.wallet;
 
 import com.fiwall.model.Wallet;
 
