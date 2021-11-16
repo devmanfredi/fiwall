@@ -133,4 +133,18 @@ class WalletControllerTest {
         perform.andExpect(jsonPath("$.value", is(10000)));
 
     }
+
+    @Test
+    void givenValue_whenHasBalance_shouldSubtractBalance() throws Exception {
+        wallet.setUser(user);
+        wallet.setAccount(account);
+
+        when(walletService.getWallet(user.getId())).thenReturn(wallet);
+
+        String URI = "/wallet/withdraw";
+        ResultActions perform = mvc.perform(post(URI + "/" + user.getId() + "/" + 10000));
+        perform.andExpect(status().is(201));
+
+        perform.andExpect(jsonPath("$.Value", is(10000)));
+    }
 }

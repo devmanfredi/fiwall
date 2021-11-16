@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @AllArgsConstructor
 @RestController
@@ -57,6 +59,41 @@ public class WalletController {
         walletService.updateBalance(walletUserSender);
 
         return getTransferReceipt(transferRequestDto, walletUserSender, walletUserReceiver);
+    }
+
+    @PostMapping(value = "/withdraw/{userId}/{value}")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Map<String, Object> withdraw(@PathVariable Long userId, @PathVariable BigDecimal value) {
+        var wallet = walletService.getWallet(userId);
+        if (wallet.getBalance().compareTo(BigDecimal.ZERO) > 0) {
+            wallet.setBalance(wallet.getBalance().subtract(value));
+        }
+
+        walletService.updateBalance(wallet);
+
+        return getReceipt(value, wallet);
+
+    }
+
+    @PostMapping(value = "/deposit/{userId}/{value}")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Map<String, Object> deposit(@PathVariable Long userId, @PathVariable BigDecimal value) {
+        var wallet = walletService.getWallet(userId);
+
+        wallet.setBalance(wallet.getBalance().add(value));
+
+        walletService.updateBalance(wallet);
+
+        return getReceipt(value, wallet);
+
+    }
+
+    private Map<String, Object> getReceipt(BigDecimal value, Wallet wallet) {
+        Map<String, Object> receipt = new HashMap<>();
+        receipt.put("Operation realized on : ", LocalDateTime.now());
+        receipt.put("Value", value);
+        receipt.put("Account Balance : " + wallet.getAccount().getNumberAccount(), wallet.getBalance());
+        return receipt;
     }
 
     private BigDecimal getSubtract(TransferRequestDto transferRequestDto, Wallet walletUserSender) {
