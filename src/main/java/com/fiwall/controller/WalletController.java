@@ -39,7 +39,7 @@ public class WalletController {
     private final AccountService accountService;
     private final TimelineService timelineService;
 
-    @PostMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
     public Wallet create(@PathVariable Long userId) {
         var wallet = new Wallet();
@@ -146,7 +146,7 @@ public class WalletController {
 
     private Map<String, Object> getReceipt(BigDecimal value, Wallet wallet) {
         Map<String, Object> receipt = new HashMap<>();
-        receipt.put("Operation realized on : ", LocalDateTime.now());
+        receipt.put("Transaction realized on : ", LocalDateTime.now());
         receipt.put("Value", value);
         receipt.put("Account Balance : " + wallet.getAccount().getNumberAccount(), wallet.getBalance());
         return receipt;
