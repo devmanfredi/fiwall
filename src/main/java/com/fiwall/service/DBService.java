@@ -44,7 +44,7 @@ public class DBService {
                 .user(user).id(UUID.randomUUID())
                 .build();
 
-        walletService.create(wallet);
+        walletService.updateBalance(wallet);
 
         List<UserRequestDto> users = mockUsers();
         for (UserRequestDto item : users) {
@@ -53,7 +53,7 @@ public class DBService {
 
             wallet.setAccount(accountTemp);
             wallet.setUser(userTemp);
-            walletService.create(wallet);
+            walletService.updateBalance(wallet);
 
         }
 
