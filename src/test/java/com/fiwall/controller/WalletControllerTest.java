@@ -2,13 +2,15 @@ package com.fiwall.controller;
 
 import com.fiwall.builder.account.AccountBuilder;
 import com.fiwall.builder.user.UserBuilder;
+import com.fiwall.builder.wallet.TimelineBuilder;
 import com.fiwall.builder.wallet.WalletBuilder;
 import com.fiwall.dto.PaymentDto;
 import com.fiwall.dto.TransferRequestDto;
 import com.fiwall.model.Account;
+import com.fiwall.model.Timeline;
 import com.fiwall.model.User;
 import com.fiwall.model.Wallet;
-import com.fiwall.repository.WalletRepository;
+import com.fiwall.repository.TimelineRepository;
 import com.fiwall.service.UserService;
 import com.fiwall.service.WalletService;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,6 +30,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static com.fiwall.util.TestUtil.convertObjectToJsonBytes;
@@ -51,7 +59,7 @@ class WalletControllerTest {
     private WalletService walletService;
 
     @MockBean
-    private WalletRepository walletRepository;
+    private TimelineRepository timelineRepository;
 
     User user;
     Wallet wallet;
@@ -183,5 +191,45 @@ class WalletControllerTest {
                 .andExpect(status().isOk());
 
         perform.andExpect(jsonPath("$.Value", is(149.9)));
+    }
+
+    @Test
+    void givenWallet_whenSearchTimeline_shouldReturnTimeline() throws Exception {
+        wallet.setUser(user);
+        wallet.setAccount(account);
+
+        List<Timeline> timeline = mockTimeline();
+        Page<Timeline> page = new PageImpl<>(timeline);
+
+        var sort = Sort.by(Sort.Direction.DESC, "dateTransaction");
+        var pageRequest = PageRequest.of(0, 20, sort);
+        when(timelineRepository.findAllByWalletId(wallet.getId(), pageRequest)).thenReturn(page);
+        when(walletService.getTimeline(wallet.getId(), 0, 20, sort)).thenReturn(page);
+
+
+        String URI = "/wallet/timeline";
+        ResultActions pageResponse = mvc.perform(get(URI + "?walletId=" + wallet.getId())).andExpect(status().isOk());
+
+        pageResponse.andExpect(jsonPath("$.content[0].id", is(1)));
+        pageResponse.andExpect(jsonPath("$.content[1].id", is(1)));
+        pageResponse.andExpect(jsonPath("$.content[5].id", is(1)));
+    }
+
+    private List<Timeline> mockTimeline() {
+        List<Timeline> timeline = new ArrayList<>();
+        Timeline tm = TimelineBuilder.timeline().build();
+        Timeline tm2 = TimelineBuilder.timeline().build();
+        Timeline tm3 = TimelineBuilder.timeline().build();
+        Timeline tm4 = TimelineBuilder.timeline().build();
+        Timeline tm5 = TimelineBuilder.timeline().build();
+        Timeline tm6 = TimelineBuilder.timeline().build();
+        timeline.add(tm);
+        timeline.add(tm2);
+        timeline.add(tm3);
+        timeline.add(tm4);
+        timeline.add(tm5);
+        timeline.add(tm6);
+
+        return timeline;
     }
 }

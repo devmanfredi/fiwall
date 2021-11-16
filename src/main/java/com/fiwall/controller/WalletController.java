@@ -3,28 +3,41 @@ package com.fiwall.controller;
 import com.fiwall.dto.PaymentDto;
 import com.fiwall.dto.TransferRequestDto;
 import com.fiwall.dto.TransferResponseDto;
+import com.fiwall.model.Timeline;
 import com.fiwall.model.Wallet;
 import com.fiwall.service.AccountService;
+import com.fiwall.service.TimelineService;
 import com.fiwall.service.UserService;
 import com.fiwall.service.WalletService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/wallet")
 public class WalletController {
 
+    public static final String TRANSFER_TRANSACTION = "Transfer";
+    public static final String WITHDRAW_TRANSACTION = "Withdraw";
+    public static final String DEPOSIT_TRANSACTION = "Deposit";
+    public static final String PAYMENT_TRANSACTION = "Payment";
+    public static final String SEM_SALDO_NA_CARTEIRA = "Sem Saldo na carteira";
+
     private final UserService userService;
     private final WalletService walletService;
     private final AccountService accountService;
+    private final TimelineService timelineService;
 
     @PostMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -51,13 +64,21 @@ public class WalletController {
         var walletUserSender = walletService.getWallet(transferRequestDto.getSenderId());
         var walletUserReceiver = walletService.getWallet(transferRequestDto.getReceiverId());
 
-        if (walletUserReceiver.getBalance().compareTo(transferRequestDto.getValue()) > 0) {
+        if (walletUserSender.getUser().getId().equals(walletUserReceiver.getUser().getId())) {
+            walletUserReceiver.setBalance(transferRequestDto.getValue());
+        } else if (walletUserSender.getBalance().compareTo(transferRequestDto.getValue()) > 0) {
             walletUserSender.setBalance(getSubtract(transferRequestDto, walletUserSender));
             walletUserReceiver.setBalance(walletUserReceiver.getBalance().add(transferRequestDto.getValue()));
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, SEM_SALDO_NA_CARTEIRA);
         }
+
 
         walletService.updateBalance(walletUserReceiver);
         walletService.updateBalance(walletUserSender);
+
+        var timeline = getTimeline(TRANSFER_TRANSACTION, walletUserSender.getBalance().toString(), walletUserSender, transferRequestDto.getValue().toString());
+        timelineService.save(timeline);
 
         return getTransferReceipt(transferRequestDto, walletUserSender, walletUserReceiver);
     }
@@ -72,6 +93,9 @@ public class WalletController {
 
         walletService.updateBalance(wallet);
 
+        var timeline = getTimeline(WITHDRAW_TRANSACTION, wallet.getBalance().toString(), wallet, value.toString());
+        timelineService.save(timeline);
+
         return getReceipt(value, wallet);
 
     }
@@ -84,6 +108,9 @@ public class WalletController {
         wallet.setBalance(wallet.getBalance().add(value));
 
         walletService.updateBalance(wallet);
+
+        var timeline = getTimeline(DEPOSIT_TRANSACTION, wallet.getBalance().toString(), wallet, value.toString());
+        timelineService.save(timeline);
 
         return getReceipt(value, wallet);
 
@@ -100,7 +127,21 @@ public class WalletController {
 
         walletService.updateBalance(wallet);
 
+        var timeline = getTimeline(PAYMENT_TRANSACTION, wallet.getBalance().toString(), wallet, paymentDto.getValue().toString());
+        timelineService.save(timeline);
+
         return getReceipt(paymentDto.getValue(), wallet);
+    }
+
+    @GetMapping(value = "/timeline")
+    @ResponseStatus(code = HttpStatus.OK)
+    public Page<Timeline> timeline(
+            @RequestParam UUID walletId,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "20") Integer size
+    ) {
+        var sort = Sort.by(Sort.Direction.DESC, "dateTransaction");
+        return walletService.getTimeline(walletId, page, size, sort);
     }
 
     private Map<String, Object> getReceipt(BigDecimal value, Wallet wallet) {
@@ -121,5 +162,15 @@ public class WalletController {
                 .receiver(walletUserReceiver.getUser().getFullName())
                 .dateTransfer(LocalDateTime.now())
                 .value(transferRequestDto.getValue()).build();
+    }
+
+    private Timeline getTimeline(String action, String accountBalance, Wallet wallet, String valueTransaction) {
+        return Timeline.builder()
+                .action(action)
+                .dateTransaction(LocalDateTime.now())
+                .accountBalance(accountBalance)
+                .walletId(wallet.getId())
+                .valueTransaction(valueTransaction)
+                .build();
     }
 }
