@@ -1,6 +1,7 @@
 package com.fiwall.controller;
 
 import com.fiwall.dto.PaymentDto;
+import com.fiwall.dto.TimelineResponseDTO;
 import com.fiwall.dto.TransferRequestDto;
 import com.fiwall.dto.TransferResponseDto;
 import com.fiwall.model.Timeline;
@@ -10,6 +11,7 @@ import com.fiwall.service.TimelineService;
 import com.fiwall.service.UserService;
 import com.fiwall.service.WalletService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -135,13 +137,17 @@ public class WalletController {
 
     @GetMapping(value = "/timeline")
     @ResponseStatus(code = HttpStatus.OK)
-    public Page<Timeline> timeline(
+    public Page<TimelineResponseDTO> timeline(
             @RequestParam UUID walletId,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "20") Integer size
     ) {
         var sort = Sort.by(Sort.Direction.DESC, "dateTransaction");
-        return walletService.getTimeline(walletId, page, size, sort);
+        return walletService.getTimeline(walletId, page, size, sort).map(i -> {
+            var timelineDto = new TimelineResponseDTO();
+            BeanUtils.copyProperties(i, timelineDto);
+            return timelineDto;
+        });
     }
 
     private Map<String, Object> getReceipt(BigDecimal value, Wallet wallet) {
