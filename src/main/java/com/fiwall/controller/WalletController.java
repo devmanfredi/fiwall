@@ -62,7 +62,7 @@ public class WalletController {
     }
 
     @PostMapping(value = "/withdraw/{userId}/{value}")
-    @ResponseStatus(code = HttpStatus.CREATED)
+    @ResponseStatus(code = HttpStatus.OK)
     public Map<String, Object> withdraw(@PathVariable Long userId, @PathVariable BigDecimal value) {
         var wallet = walletService.getWallet(userId);
         if (wallet.getBalance().compareTo(BigDecimal.ZERO) > 0) {
@@ -76,7 +76,7 @@ public class WalletController {
     }
 
     @PostMapping(value = "/deposit/{userId}/{value}")
-    @ResponseStatus(code = HttpStatus.CREATED)
+    @ResponseStatus(code = HttpStatus.OK)
     public Map<String, Object> deposit(@PathVariable Long userId, @PathVariable BigDecimal value) {
         var wallet = walletService.getWallet(userId);
 
