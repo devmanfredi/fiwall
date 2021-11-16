@@ -85,7 +85,7 @@ class WalletControllerTest {
 
         String URI = "/wallet";
 
-        ResultActions perform = mvc.perform(post(URI + "/" + user.getId()));
+        ResultActions perform = mvc.perform(post(URI + "/user/" + user.getId()));
         perform.andExpect(status().is(201));
 
         perform.andExpect(jsonPath("$.user.id", is(10)));
