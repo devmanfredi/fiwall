@@ -23,4 +23,8 @@ public class WalletService {
     public Wallet getWallet(Long id) {
         return walletRepository.findWalletByUserId(id);
     }
+
+    public void updateBalance(Wallet wallet) {
+        walletRepository.save(wallet);
+    }
 }
