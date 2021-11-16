@@ -1,12 +1,15 @@
 package com.fiwall.service;
 
 import com.fiwall.dto.UserRequestDto;
+import com.fiwall.model.Wallet;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -15,20 +18,45 @@ public class DBService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private WalletService walletService;
+
+    @Autowired
+    private TimelineService timelineService;
+
+    @Autowired
+    private AccountService accountService;
+
 
     public void instantiateDevDatabase() {
         log.info("Started database environment dev");
 
-        var fullName = "Administrador";
-        var username = "admin@admin.com";
+        var fullName = "Heuler Manfredi";
+        var username = "hf@gmail.com";
         var password = "admin";
 
         UserRequestDto userDTO = UserRequestDto.builder().email(username).fullName(fullName).password(password).document("29989526079").build();
-        userService.save(userDTO);
+        var user = userService.save(userDTO);
+        var account = accountService.createAccount();
+        var wallet = Wallet.builder()
+                .balance(BigDecimal.valueOf(50000))
+                .account(account)
+                .user(user).id(UUID.randomUUID())
+                .build();
+
+        walletService.create(wallet);
+
         List<UserRequestDto> users = mockUsers();
-        for (UserRequestDto user : users) {
-            userService.save(user);
+        for (UserRequestDto item : users) {
+            var userTemp = userService.save(item);
+            var accountTemp = accountService.createAccount();
+
+            wallet.setAccount(accountTemp);
+            wallet.setUser(userTemp);
+            walletService.create(wallet);
+
         }
+
 
         log.info("=> Mock Finish");
 
