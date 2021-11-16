@@ -3,6 +3,7 @@ package com.fiwall.controller;
 import com.fiwall.builder.account.AccountBuilder;
 import com.fiwall.builder.user.UserBuilder;
 import com.fiwall.builder.wallet.WalletBuilder;
+import com.fiwall.dto.PaymentDto;
 import com.fiwall.dto.TransferRequestDto;
 import com.fiwall.model.Account;
 import com.fiwall.model.User;
@@ -160,5 +161,27 @@ class WalletControllerTest {
         perform.andExpect(status().isOk());
 
         perform.andExpect(jsonPath("$.Value", is(10000)));
+    }
+
+    @Test
+    void givenAccountPayable_whenPay_shouldReturnReceipt() throws Exception {
+        wallet.setUser(user);
+        wallet.setAccount(account);
+
+        when(walletService.getWallet(user.getId())).thenReturn(wallet);
+
+        PaymentDto contaDeLuz = PaymentDto.builder()
+                .barCode("123145879545266959872")
+                .description("Conta de Luz")
+                .value(BigDecimal.valueOf(149.9))
+                .userId(wallet.getUser().getId()).build();
+
+        String URI = "/wallet/payment";
+        ResultActions perform = mvc.perform(post(URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(convertObjectToJsonBytes(contaDeLuz)))
+                .andExpect(status().isOk());
+
+        perform.andExpect(jsonPath("$.Value", is(149.9)));
     }
 }

@@ -1,5 +1,6 @@
 package com.fiwall.controller;
 
+import com.fiwall.dto.PaymentDto;
 import com.fiwall.dto.TransferRequestDto;
 import com.fiwall.dto.TransferResponseDto;
 import com.fiwall.model.Wallet;
@@ -86,6 +87,20 @@ public class WalletController {
 
         return getReceipt(value, wallet);
 
+    }
+
+    @PostMapping(value = "/payment")
+    @ResponseStatus(code = HttpStatus.OK)
+    public Map<String, Object> payment(@RequestBody PaymentDto paymentDto) {
+        var wallet = walletService.getWallet(paymentDto.getUserId());
+
+        if (wallet.getBalance().compareTo(paymentDto.getValue()) > 0) {
+            wallet.setBalance(wallet.getBalance().subtract(paymentDto.getValue()));
+        }
+
+        walletService.updateBalance(wallet);
+
+        return getReceipt(paymentDto.getValue(), wallet);
     }
 
     private Map<String, Object> getReceipt(BigDecimal value, Wallet wallet) {
