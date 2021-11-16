@@ -6,6 +6,7 @@ import com.fiwall.builder.user.WalletBuilder;
 import com.fiwall.model.Account;
 import com.fiwall.model.User;
 import com.fiwall.model.Wallet;
+import com.fiwall.repository.UserRepository;
 import com.fiwall.repository.WalletRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.math.BigDecimal;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
@@ -21,6 +25,10 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ActiveProfiles("test")
 class WalletServiceTest {
+    private static final int TRANSF_VALUE = 25000;
+
+    @MockBean
+    private UserRepository userRepository;
 
     @Autowired
     private WalletService walletService;
@@ -72,5 +80,27 @@ class WalletServiceTest {
         assertNotNull(result);
         assertEquals(result.getId(), wallet.getId());
 
+    }
+
+    /**
+     * Transfer
+     */
+    @Test
+    void givenIdReceiver_whenFindWallet_shouldReturnWallet() {
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        wallet.setUser(user);
+        wallet.setAccount(account);
+
+        when(walletRepository.findWalletByUserId(wallet.getUser().getId())).thenReturn(wallet);
+
+        Wallet result = walletService.getWallet(wallet.getUser().getId());
+
+        assertNotNull(result);
+        result.setBalance(BigDecimal.valueOf(TRANSF_VALUE));
+        when(walletService.getWallet(wallet.getUser().getId())).thenReturn(result);
+        Wallet resultWithTransfer = walletService.getWallet(wallet.getUser().getId());
+        assertNotNull(resultWithTransfer);
+        assertEquals(result.getBalance(), BigDecimal.valueOf(TRANSF_VALUE));
     }
 }

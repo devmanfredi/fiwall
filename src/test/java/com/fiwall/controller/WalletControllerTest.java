@@ -41,6 +41,7 @@ class WalletControllerTest {
     @MockBean
     private WalletService walletService;
 
+
     User user;
     Wallet wallet;
     Account account;
@@ -56,18 +57,19 @@ class WalletControllerTest {
     @Test
     @Transactional
     void givenUserRequestDto_whenCreateWallet_shouldReturnWallet() throws Exception {
-        user.setId(10L);
+        wallet.setUser(user);
+        wallet.setAccount(account);
 
+        when(walletService.create(wallet)).thenReturn(wallet);
         when(userService.findUserById(user.getId())).thenReturn(user);
+
 
         String URI = "/wallet";
 
         ResultActions perform = mvc.perform(post(URI + "/" + user.getId()));
         perform.andExpect(status().is(201));
 
-        perform.andExpect(jsonPath("$.balance", is(0)));
-        perform.andExpect(jsonPath("$.user.id", is(user.getId().toString())));
-
+        perform.andExpect(jsonPath("$.user.id", is(10)));
 
     }
 
