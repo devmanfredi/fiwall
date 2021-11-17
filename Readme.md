@@ -27,6 +27,13 @@ docker run -d -p 5672:5672 -p 15672:15672  --name rabbitmq rabbitmq:3.8.3-manage
 
 #### Develop
 
+Before run application . starter RabbitMQ:
+
+```
+docker run -d -p 5672:5672 -p 15672:15672  --name rabbitmq rabbitmq:3.8.3-management
+
+```
+
 Run the application from the command line using:
 
 ```
