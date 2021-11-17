@@ -39,7 +39,7 @@
         "method": "POST",
         "header": [],
         "url": {
-          "raw": "{{HOSTNAME}}:{{PORT}}/wallet/user/7",
+          "raw": "{{HOSTNAME}}:{{PORT}}/wallet/user/",
           "host": [
             "{{HOSTNAME}}"
           ],
@@ -47,7 +47,7 @@
           "path": [
             "wallet",
             "user",
-            "7"
+            ""
           ]
         }
       },
