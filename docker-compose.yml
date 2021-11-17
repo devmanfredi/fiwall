@@ -1,4 +1,4 @@
-version:'3'
+version: '3'
 services:
   fiwall:
     image: fiwall/fiwall
@@ -16,11 +16,8 @@ services:
       - 8080:8080
     depends_on:
       - fiwall-db
-      - fiwall-rabbitmq
     links:
       - fiwall-db
-      - fiwall-rabbitmq
-
   fiwall-db:
     image: postgres:10.4
     network_mode: bridge
@@ -36,19 +33,5 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     restart: unless-stopped
-
-  fiwall-rabbitmq:
-    image: rabbitmq:3.8-management-alpine
-    network_mode: bridge
-    container_name: fiwall-rabbitmq
-    ports:
-      - 5672:5672
-      - 15672:15672
-    volumes:
-      - rabbitmq-data:/var/lib/rabbitmq/
-      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-    networks:
-      - rabbitmq_go_net
 volumes:
   postgres-data:
-  rabbitmq-data:
