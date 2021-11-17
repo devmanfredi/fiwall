@@ -1,4 +1,4 @@
-package com.fiwall.config.rabbitmq.producer;
+package com.fiwall.config.rabbitmq.consumer;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -9,20 +9,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class RabbitMQProducerConfig {
+public class RabbitMQConfig {
 
-    public static final String QUEUE = "message_queue";
-    public static final String EXCHANGE = "message_exchange";
+    public static final String TRANSACTION_QUEUE = "transaction_queue";
+    public static final String TRANSACTION_EXCHANGE = "transaction_exchange";
     public static final String ROUTING_KEY = "message_routingKey";
 
     @Bean
     public Queue queue() {
-        return new Queue(QUEUE);
+        return new Queue(TRANSACTION_QUEUE);
     }
 
     @Bean
     public TopicExchange exchange() {
-        return new TopicExchange(EXCHANGE);
+        return new TopicExchange(TRANSACTION_EXCHANGE);
     }
 
     @Bean
@@ -40,7 +40,7 @@ public class RabbitMQProducerConfig {
 
     @Bean
     public AmqpTemplate template(ConnectionFactory connectionFactory) {
-        RabbitTemplate template = new RabbitTemplate(connectionFactory);
+        var template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(messageConverter());
         return template;
     }
