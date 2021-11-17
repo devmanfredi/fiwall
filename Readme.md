@@ -1,4 +1,5 @@
 # FiWall
+FiWall is a web rest api for financial transactionss
 
 ## Getting Started
 
