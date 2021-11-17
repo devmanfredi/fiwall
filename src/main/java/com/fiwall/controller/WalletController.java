@@ -1,9 +1,7 @@
 package com.fiwall.controller;
 
-import com.fiwall.dto.PaymentDto;
-import com.fiwall.dto.TimelineResponseDTO;
-import com.fiwall.dto.TransferRequestDto;
-import com.fiwall.dto.TransferResponseDto;
+import com.fiwall.config.rabbitmq.consumer.RabbitMQConfig;
+import com.fiwall.dto.*;
 import com.fiwall.model.Timeline;
 import com.fiwall.model.Wallet;
 import com.fiwall.service.AccountService;
@@ -11,6 +9,7 @@ import com.fiwall.service.TimelineService;
 import com.fiwall.service.UserService;
 import com.fiwall.service.WalletService;
 import lombok.AllArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -40,6 +39,7 @@ public class WalletController {
     private final WalletService walletService;
     private final AccountService accountService;
     private final TimelineService timelineService;
+    private final RabbitTemplate rabbitTemplate;
 
     @PostMapping(value = "/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -79,6 +79,13 @@ public class WalletController {
         walletService.updateBalance(walletUserReceiver);
         walletService.updateBalance(walletUserSender);
 
+        var receiptTransactionSender = getReceiptTransaction(transferRequestDto, walletUserSender);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.TRANSACTION_EXCHANGE, RabbitMQConfig.ROUTING_KEY, receiptTransactionSender);
+
+        var receiptTransactionReceiver = getReceiptTransaction(transferRequestDto, walletUserReceiver);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.TRANSACTION_EXCHANGE, RabbitMQConfig.ROUTING_KEY, receiptTransactionReceiver);
+
+
         var timeline = getTimeline(TRANSFER_TRANSACTION, walletUserSender.getBalance().toString(), walletUserSender, transferRequestDto.getValue().toString());
         timelineService.save(timeline);
 
@@ -98,7 +105,21 @@ public class WalletController {
         var timeline = getTimeline(WITHDRAW_TRANSACTION, wallet.getBalance().toString(), wallet, value.toString());
         timelineService.save(timeline);
 
+
         return getReceipt(value, wallet);
+
+    }
+
+    private ReceiptTransaction getReceiptTransaction(TransferRequestDto transferRequestDto, Wallet wallet) {
+        var receiptTransaction = new ReceiptTransaction();
+        receiptTransaction.setOwnerRef(wallet.getUser().getFullName());
+        receiptTransaction.setEmailFrom("manfredidev@gmail.com");
+        receiptTransaction.setEmailTo(wallet.getUser().getEmail());
+        receiptTransaction.setSubject(TRANSFER_TRANSACTION);
+        receiptTransaction.setDescription("Transfer on " + LocalDateTime.now());
+        receiptTransaction.setDocument(wallet.getUser().getDocument());
+        receiptTransaction.setValue(transferRequestDto.getValue());
+        return receiptTransaction;
 
     }
 
