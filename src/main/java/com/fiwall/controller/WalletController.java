@@ -1,12 +1,8 @@
 package com.fiwall.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fiwall.config.rabbitmq.producer.WalletAMQPConfig;
-import com.fiwall.dto.PaymentDto;
-import com.fiwall.dto.TimelineResponseDTO;
-import com.fiwall.dto.TransferRequestDto;
-import com.fiwall.dto.TransferResponseDto;
+import com.fiwall.config.rabbitmq.producer.RabbitMQProducerConfig;
+import com.fiwall.dto.*;
 import com.fiwall.model.Timeline;
 import com.fiwall.model.Wallet;
 import com.fiwall.service.AccountService;
@@ -87,11 +83,14 @@ public class WalletController {
         var timeline = getTimeline(TRANSFER_TRANSACTION, walletUserSender.getBalance().toString(), walletUserSender, transferRequestDto.getValue().toString());
         timelineService.save(timeline);
 
-        Map<String, Object> email = new HashMap<>();
-        email.put("from", "Heuler");
-        email.put("to", "Rabbit");
-        var json = new ObjectMapper().writeValueAsString(email);
-        rabbitTemplate.convertAndSend(WalletAMQPConfig.EXCHANGE_NAME, "", json);
+        var email = EmailDto.builder()
+                .ownerRef("Heuler")
+                .emailFrom("felipemanfredigalaxy@gmail.com")
+                .emailTo("manfredidev@gmail.com")
+                .subject("Test Mensageria")
+                .text("Hello RabbitMq")
+                .build();
+        rabbitTemplate.convertAndSend(RabbitMQProducerConfig.EXCHANGE_NAME, "", email);
 
         return getTransferReceipt(transferRequestDto, walletUserSender, walletUserReceiver);
     }
