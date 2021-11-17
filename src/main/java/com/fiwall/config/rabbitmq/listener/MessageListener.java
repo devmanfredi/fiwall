@@ -1,6 +1,6 @@
 package com.fiwall.config.rabbitmq.listener;
 
-import com.fiwall.config.rabbitmq.consumer.RabbitMQConfig;
+import com.fiwall.config.rabbitmq.RabbitMQConfig;
 import com.fiwall.dto.ReceiptTransaction;
 import com.fiwall.service.EmailService;
 import lombok.extern.slf4j.Slf4j;

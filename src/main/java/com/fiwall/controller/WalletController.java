@@ -1,6 +1,6 @@
 package com.fiwall.controller;
 
-import com.fiwall.config.rabbitmq.consumer.RabbitMQConfig;
+import com.fiwall.config.rabbitmq.RabbitMQConfig;
 import com.fiwall.dto.*;
 import com.fiwall.model.Timeline;
 import com.fiwall.model.Wallet;
