@@ -83,16 +83,28 @@ public class WalletController {
         var timeline = getTimeline(TRANSFER_TRANSACTION, walletUserSender.getBalance().toString(), walletUserSender, transferRequestDto.getValue().toString());
         timelineService.save(timeline);
 
-        var email = EmailDto.builder()
-                .ownerRef("Heuler")
-                .emailFrom("felipemanfredigalaxy@gmail.com")
-                .emailTo("manfredidev@gmail.com")
-                .subject("Test Mensageria")
-                .text("Hello RabbitMq")
-                .build();
-        rabbitTemplate.convertAndSend(RabbitMQProducerConfig.EXCHANGE_NAME, "", email);
+        var receiptTransactionSender = getReceiptTransaction(transferRequestDto, walletUserSender);
+//        var jsonSender = new ObjectMapper().writeValueAsString(receiptTransactionSender);
+        rabbitTemplate.convertAndSend(RabbitMQProducerConfig.EXCHANGE, RabbitMQProducerConfig.ROUTING_KEY, receiptTransactionSender);
+
+        var receiptTransactionReceiver = getReceiptTransaction(transferRequestDto, walletUserReceiver);
+//        var jsonReceiver = new ObjectMapper().writeValueAsString(receiptTransactionReceiver);
+        rabbitTemplate.convertAndSend(RabbitMQProducerConfig.EXCHANGE, RabbitMQProducerConfig.ROUTING_KEY, receiptTransactionReceiver);
 
         return getTransferReceipt(transferRequestDto, walletUserSender, walletUserReceiver);
+    }
+
+    private ReceiptTransaction getReceiptTransaction(TransferRequestDto transferRequestDto, Wallet wallet) {
+        var receiptTransaction = new ReceiptTransaction();
+        receiptTransaction.setOwnerRef(wallet.getUser().getFullName());
+        receiptTransaction.setEmailFrom("manfredidev@gmail.com");
+        receiptTransaction.setEmailTo(wallet.getUser().getEmail());
+        receiptTransaction.setSubject(TRANSFER_TRANSACTION);
+        receiptTransaction.setDescription("Transfer on " + LocalDateTime.now());
+        receiptTransaction.setDocument(wallet.getUser().getDocument());
+        receiptTransaction.setValue(transferRequestDto.getValue());
+        return receiptTransaction;
+
     }
 
     @PostMapping(value = "/withdraw/{userId}/{value}")
