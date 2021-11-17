@@ -8,7 +8,6 @@ import com.fiwall.service.AccountService;
 import com.fiwall.service.TimelineService;
 import com.fiwall.service.UserService;
 import com.fiwall.service.WalletService;
-import lombok.AllArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -24,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@AllArgsConstructor
 @RestController
 @RequestMapping("/wallet")
 public class WalletController {
@@ -33,13 +31,21 @@ public class WalletController {
     public static final String WITHDRAW_TRANSACTION = "Withdraw";
     public static final String DEPOSIT_TRANSACTION = "Deposit";
     public static final String PAYMENT_TRANSACTION = "Payment";
-    public static final String SEM_SALDO_NA_CARTEIRA = "Sem Saldo na carteira";
+    public static final String NO_BALANCE_IN_THE_WALLET = "No Balance in the Wallet";
 
     private final UserService userService;
     private final WalletService walletService;
     private final AccountService accountService;
     private final TimelineService timelineService;
     private final RabbitTemplate rabbitTemplate;
+
+    public WalletController(UserService userService, WalletService walletService, AccountService accountService, TimelineService timelineService, RabbitTemplate rabbitTemplate) {
+        this.userService = userService;
+        this.walletService = walletService;
+        this.accountService = accountService;
+        this.timelineService = timelineService;
+        this.rabbitTemplate = rabbitTemplate;
+    }
 
     @PostMapping(value = "/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -55,26 +61,25 @@ public class WalletController {
     }
 
     @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(code = HttpStatus.CREATED)
+    @ResponseStatus(code = HttpStatus.OK)
     public Wallet findWalletByUserId(@PathVariable Long userId) {
         return walletService.getWallet(userId);
     }
 
     @PostMapping(value = "/transfer", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(code = HttpStatus.CREATED)
+    @ResponseStatus(code = HttpStatus.ACCEPTED)
     public TransferResponseDto transfer(@RequestBody TransferRequestDto transferRequestDto) {
         var walletUserSender = walletService.getWallet(transferRequestDto.getSenderId());
         var walletUserReceiver = walletService.getWallet(transferRequestDto.getReceiverId());
 
-        if (walletUserSender.getUser().getId().equals(walletUserReceiver.getUser().getId())) {
+        if (isSamePerson(walletUserSender, walletUserReceiver)) {
             walletUserReceiver.setBalance(transferRequestDto.getValue());
         } else if (walletUserSender.getBalance().compareTo(transferRequestDto.getValue()) > 0) {
             walletUserSender.setBalance(getSubtract(transferRequestDto, walletUserSender));
             walletUserReceiver.setBalance(walletUserReceiver.getBalance().add(transferRequestDto.getValue()));
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, SEM_SALDO_NA_CARTEIRA);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, NO_BALANCE_IN_THE_WALLET);
         }
-
 
         walletService.updateBalance(walletUserReceiver);
         walletService.updateBalance(walletUserSender);
@@ -84,7 +89,6 @@ public class WalletController {
 
         var receiptTransactionReceiver = getReceiptTransaction(transferRequestDto, walletUserReceiver);
         rabbitTemplate.convertAndSend(RabbitMQConfig.TRANSACTION_EXCHANGE, RabbitMQConfig.ROUTING_KEY, receiptTransactionReceiver);
-
 
         var timeline = getTimeline(TRANSFER_TRANSACTION, walletUserSender.getBalance().toString(), walletUserSender, transferRequestDto.getValue().toString());
         timelineService.save(timeline);
@@ -105,21 +109,7 @@ public class WalletController {
         var timeline = getTimeline(WITHDRAW_TRANSACTION, wallet.getBalance().toString(), wallet, value.toString());
         timelineService.save(timeline);
 
-
         return getReceipt(value, wallet);
-
-    }
-
-    private ReceiptTransaction getReceiptTransaction(TransferRequestDto transferRequestDto, Wallet wallet) {
-        var receiptTransaction = new ReceiptTransaction();
-        receiptTransaction.setOwnerRef(wallet.getUser().getFullName());
-        receiptTransaction.setEmailFrom("manfredidev@gmail.com");
-        receiptTransaction.setEmailTo(wallet.getUser().getEmail());
-        receiptTransaction.setSubject(TRANSFER_TRANSACTION);
-        receiptTransaction.setDescription("Transfer on " + LocalDateTime.now());
-        receiptTransaction.setDocument(wallet.getUser().getDocument());
-        receiptTransaction.setValue(transferRequestDto.getValue());
-        return receiptTransaction;
 
     }
 
@@ -171,6 +161,18 @@ public class WalletController {
         });
     }
 
+    private ReceiptTransactionDto getReceiptTransaction(TransferRequestDto transferRequestDto, Wallet wallet) {
+        var receiptTransaction = new ReceiptTransactionDto();
+        receiptTransaction.setOwnerRef(wallet.getUser().getFullName());
+        receiptTransaction.setEmailFrom("manfredidev@gmail.com");
+        receiptTransaction.setEmailTo(wallet.getUser().getEmail());
+        receiptTransaction.setSubject(TRANSFER_TRANSACTION);
+        receiptTransaction.setDescription("Transfer on " + LocalDateTime.now());
+        receiptTransaction.setDocument(wallet.getUser().getDocument());
+        receiptTransaction.setValue(transferRequestDto.getValue());
+        return receiptTransaction;
+    }
+
     private Map<String, Object> getReceipt(BigDecimal value, Wallet wallet) {
         Map<String, Object> receipt = new HashMap<>();
         receipt.put("Transaction realized on : ", LocalDateTime.now());
@@ -199,5 +201,9 @@ public class WalletController {
                 .walletId(wallet.getId())
                 .valueTransaction(valueTransaction)
                 .build();
+    }
+
+    private boolean isSamePerson(Wallet walletUserSender, Wallet walletUserReceiver) {
+        return walletUserSender.getUser().getId().equals(walletUserReceiver.getUser().getId());
     }
 }

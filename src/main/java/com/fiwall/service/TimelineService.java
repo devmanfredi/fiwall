@@ -2,12 +2,14 @@ package com.fiwall.service;
 
 import com.fiwall.model.Timeline;
 import com.fiwall.repository.TimelineRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
 public class TimelineService {
+
+    public TimelineService(TimelineRepository tmRepository) {
+        this.tmRepository = tmRepository;
+    }
 
     private final TimelineRepository tmRepository;
 

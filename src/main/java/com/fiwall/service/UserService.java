@@ -9,16 +9,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.Objects;
 
 @Service
 public class UserService {
 
-    public static final String DOCUMENTO_CADASTRADO = "Documento já está cadastrado";
-    public static final String EMAIL_CADASTRADO = "Email já cadastrado";
+    public static final String DOCUMENT_ALREADY_EXISTS = "Document Already Exists";
+    public static final String EMAIL_ALREADY_EXISTS = "Email Already Exists";
+    public static final String WITHOUT_DOCUMENT = "Without Document";
 
 
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -34,8 +36,9 @@ public class UserService {
     }
 
     private void validDocument(String document) {
-        if (isDocumentExists(document)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, DOCUMENTO_CADASTRADO);
-        if (isDocumentNull(document)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sem Documento");
+        if (isDocumentExists(document))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, DOCUMENT_ALREADY_EXISTS);
+        if (isDocumentNull(document)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, WITHOUT_DOCUMENT);
     }
 
     private boolean isDocumentNull(String document) {
@@ -47,18 +50,15 @@ public class UserService {
     }
 
     private void validEmailExists(String email) {
-        if (isEmailExists(email)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, EMAIL_CADASTRADO);
+        if (isEmailExists(email)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, EMAIL_ALREADY_EXISTS);
     }
 
     private boolean isEmailExists(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
 
-    public User findUserByDocument(String document) {
-        return userRepository.findByDocument(document).get();
-    }
-
     public User findUserById(Long userId) {
-        return userRepository.findById(userId).get();
+
+        return userRepository.findById(userId).orElseThrow(EntityNotFoundException::new);
     }
 }

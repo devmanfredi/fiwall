@@ -4,7 +4,6 @@ import com.fiwall.model.Timeline;
 import com.fiwall.model.Wallet;
 import com.fiwall.repository.TimelineRepository;
 import com.fiwall.repository.WalletRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -15,11 +14,16 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
-@AllArgsConstructor
 public class WalletService {
 
     private final WalletRepository walletRepository;
     private final TimelineRepository timelineRepository;
+
+    public WalletService(WalletRepository walletRepository, TimelineRepository timelineRepository) {
+        this.walletRepository = walletRepository;
+        this.timelineRepository = timelineRepository;
+    }
+
 
     @Transactional
     public Wallet create(Wallet wallet) {

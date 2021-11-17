@@ -1,7 +1,6 @@
 package com.fiwall.service;
 
-import com.fiwall.dto.ReceiptTransaction;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fiwall.dto.ReceiptTransactionDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -12,17 +11,19 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class EmailService {
 
+    private final JavaMailSender emailSender;
 
-    @Autowired
-    private JavaMailSender emailSender;
+    public EmailService(JavaMailSender emailSender) {
+        this.emailSender = emailSender;
+    }
 
-    public void sendEmail(ReceiptTransaction receiptTransaction) {
+    public void sendEmail(ReceiptTransactionDto receiptTransactionDto) {
         try {
             var message = new SimpleMailMessage();
-            message.setFrom(receiptTransaction.getEmailFrom());
-            message.setTo(receiptTransaction.getEmailTo());
-            message.setSubject(receiptTransaction.getSubject());
-            message.setText(receiptTransaction.getDescription());
+            message.setFrom(receiptTransactionDto.getEmailFrom());
+            message.setTo(receiptTransactionDto.getEmailTo());
+            message.setSubject(receiptTransactionDto.getSubject());
+            message.setText(receiptTransactionDto.getDescription());
             emailSender.send(message);
 
         } catch (MailException e) {

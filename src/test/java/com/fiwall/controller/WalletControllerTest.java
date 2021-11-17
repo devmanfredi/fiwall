@@ -49,6 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class WalletControllerTest {
 
     public static final String PATH_WALLET = "/wallet";
+
     @Autowired
     private MockMvc mvc;
 

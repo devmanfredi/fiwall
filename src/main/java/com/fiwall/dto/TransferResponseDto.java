@@ -1,5 +1,6 @@
 package com.fiwall.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonPropertyOrder({"sender", "receiver", "dateTransfer", "dateTransaction", "value"})
 public class TransferResponseDto {
 
     private String sender;

@@ -3,7 +3,6 @@ package com.fiwall.service;
 import com.fiwall.dto.UserRequestDto;
 import com.fiwall.model.Wallet;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -15,17 +14,17 @@ import java.util.UUID;
 @Service
 public class DBService {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final WalletService walletService;
+    private final TimelineService timelineService;
+    private final AccountService accountService;
 
-    @Autowired
-    private WalletService walletService;
-
-    @Autowired
-    private TimelineService timelineService;
-
-    @Autowired
-    private AccountService accountService;
+    public DBService(UserService userService, WalletService walletService, TimelineService timelineService, AccountService accountService) {
+        this.userService = userService;
+        this.walletService = walletService;
+        this.timelineService = timelineService;
+        this.accountService = accountService;
+    }
 
 
     public void instantiateDevDatabase() {
