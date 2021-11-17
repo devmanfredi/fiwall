@@ -1,0 +1,199 @@
+{
+  "info": {
+    "_postman_id": "0d4b42bf-2eec-4d22-95af-9c13722772ed",
+    "name": "FiWall",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Oauth Signup",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"fullName\": \"Heuler Felipe Ramos Manfredi\",\r\n    \"email\": \"hfrmanfredi@gmail.com\",\r\n    \"document\": \"02205652281\",\r\n    \"password\": \"FKs150709\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{HOSTNAME}}:{{PORT}}/oauth/signup",
+          "host": [
+            "{{HOSTNAME}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "oauth",
+            "signup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Wallet By User Id",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{HOSTNAME}}:{{PORT}}/wallet/user/7",
+          "host": [
+            "{{HOSTNAME}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "wallet",
+            "user",
+            "7"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Wallet By User Id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{HOSTNAME}}:{{PORT}}/wallet/7",
+          "host": [
+            "{{HOSTNAME}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "wallet",
+            "7"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Transfer balance",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"senderId\": 4,\r\n    \"receiverId\": 1,\r\n    \"value\" : 600\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{HOSTNAME}}:{{PORT}}/wallet/transfer",
+          "host": [
+            "{{HOSTNAME}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "wallet",
+            "transfer"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Withdraw",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{HOSTNAME}}:{{PORT}}/wallet/withdraw/5/60",
+          "host": [
+            "{{HOSTNAME}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "wallet",
+            "withdraw",
+            "5",
+            "60"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Deposit",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{HOSTNAME}}:{{PORT}}/wallet/deposit/7/150000",
+          "host": [
+            "{{HOSTNAME}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "wallet",
+            "deposit",
+            "7",
+            "150000"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Payment",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"userId\": 7,\r\n    \"barCode\": \"1547955362657895\",\r\n    \"description\": \"Test payment FiWall Web Rest\",\r\n    \"value\": 4887\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{HOSTNAME}}:{{PORT}}/wallet/payment",
+          "host": [
+            "{{HOSTNAME}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "wallet",
+            "payment"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Timeline",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{HOSTNAME}}:{{PORT}}/wallet/timeline?walletId=d660abf4-55c2-4f73-907c-518493245c96",
+          "host": [
+            "{{HOSTNAME}}"
+          ],
+          "port": "{{PORT}}",
+          "path": [
+            "wallet",
+            "timeline"
+          ],
+          "query": [
+            {
+              "key": "walletId",
+              "value": "d660abf4-55c2-4f73-907c-518493245c96"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

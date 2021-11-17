@@ -32,6 +32,8 @@ public class WalletController {
     public static final String DEPOSIT_TRANSACTION = "Deposit";
     public static final String PAYMENT_TRANSACTION = "Payment";
     public static final String NO_BALANCE_IN_THE_WALLET = "No Balance in the Wallet";
+    public static final String WALLET_ALREADY_EXIST = "Wallet Already Exist";
+    public static final String INSUFICIENT_BALANCE = "Insuficient Balance";
 
     private final UserService userService;
     private final WalletService walletService;
@@ -50,6 +52,9 @@ public class WalletController {
     @PostMapping(value = "/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
     public Wallet create(@PathVariable Long userId) {
+        if (walletService.isWalletExist(userId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, WALLET_ALREADY_EXIST);
+        }
         var wallet = new Wallet();
         var account = accountService.createAccount();
         var user = userService.findUserById(userId);
@@ -102,12 +107,12 @@ public class WalletController {
         var wallet = walletService.getWallet(userId);
         if (wallet.getBalance().compareTo(BigDecimal.ZERO) > 0) {
             wallet.setBalance(wallet.getBalance().subtract(value));
+            walletService.updateBalance(wallet);
+            var timeline = getTimeline(WITHDRAW_TRANSACTION, wallet.getBalance().toString(), wallet, value.toString());
+            timelineService.save(timeline);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INSUFICIENT_BALANCE);
         }
-
-        walletService.updateBalance(wallet);
-
-        var timeline = getTimeline(WITHDRAW_TRANSACTION, wallet.getBalance().toString(), wallet, value.toString());
-        timelineService.save(timeline);
 
         return getReceipt(value, wallet);
 
@@ -136,12 +141,14 @@ public class WalletController {
 
         if (wallet.getBalance().compareTo(paymentDto.getValue()) > 0) {
             wallet.setBalance(wallet.getBalance().subtract(paymentDto.getValue()));
+            walletService.updateBalance(wallet);
+
+            var timeline = getTimeline(PAYMENT_TRANSACTION, wallet.getBalance().toString(), wallet, paymentDto.getValue().toString());
+            timelineService.save(timeline);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INSUFICIENT_BALANCE);
         }
 
-        walletService.updateBalance(wallet);
-
-        var timeline = getTimeline(PAYMENT_TRANSACTION, wallet.getBalance().toString(), wallet, paymentDto.getValue().toString());
-        timelineService.save(timeline);
 
         return getReceipt(paymentDto.getValue(), wallet);
     }

@@ -35,11 +35,12 @@ class OauthControllerTest {
     @Transactional
     void givenNewUser_whenRegister_shouldReturnUser() throws Exception {
         UserRequestDto user = UserRequestBuilder.usuarioAdmin().build();
+        user.setEmail("abc@gmail.com");
         String URI = "/oauth/signup";
         ResultActions perform = mvc.perform(post(URI)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(user)))
-                .andExpect(status().isCreated());
+                .andExpect(status().is(201));
         perform.andExpect(jsonPath("$.email", is(user.getEmail())));
         perform.andExpect(jsonPath("$.password", is(user.getPassword())));
     }
