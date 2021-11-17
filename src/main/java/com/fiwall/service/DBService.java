@@ -61,6 +61,20 @@ public class DBService {
 
     }
 
+    public void instantiateTestDatabase() {
+        log.info("Started database environment dev");
+
+        var fullName = "Administrador";
+        var username = "admin@admin.com";
+        var password = "admin";
+
+        UserRequestDto userDTO = UserRequestDto.builder().email(username).fullName(fullName).password(password).document("29989526079").build();
+        var user = userService.save(userDTO);
+        log.info("User created: " + user);
+
+        log.info("Finished database");
+    }
+
     public List<UserRequestDto> mockUsers() {
         List<UserRequestDto> users = new ArrayList<>();
         UserRequestDto userDTO1 = UserRequestDto.builder().email("dev1@gmail.com").fullName("Dev Dev 1").password("Dev1").document("07205048052").build();
