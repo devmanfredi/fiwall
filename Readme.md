@@ -88,4 +88,4 @@ You can test them using postman or any other rest client.
 
 ## Design Arch
 
-![alt text](https://github.com/[devmanfredi]/[fiwall]/[develop]/fiwall-arch.jpeg?raw=true)
+![alt text](https://github.com/[devmanfredi]/[fiwall]/[develop]/fiwall-arch.jpg?raw=true)
