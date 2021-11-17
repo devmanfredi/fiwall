@@ -11,27 +11,31 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
-@Entity(name = "users")
+@Entity()
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Timeline {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotNull
-    private String fullName;
+    private String action;
 
     @NotNull
-    private String document;
+    private String accountBalance;
 
     @Email
-    private String email;
+    private LocalDateTime dateTransaction;
 
     @NotNull
-    private String password;
+    private String valueTransaction;
 
+    @NotNull
+    private UUID walletId;
 }

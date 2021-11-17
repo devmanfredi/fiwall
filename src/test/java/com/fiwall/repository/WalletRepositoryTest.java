@@ -1,7 +1,8 @@
 package com.fiwall.repository;
 
-import com.fiwall.builder.user.UserBuilder;
-import com.fiwall.model.User;
+
+import com.fiwall.builder.wallet.WalletBuilder;
+import com.fiwall.model.Wallet;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,24 +13,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
-
 @SpringBootTest
 @ActiveProfiles("test")
-class UserRepositoryTest {
+class WalletRepositoryTest {
 
     @MockBean
-    UserRepository userRepository;
+    WalletRepository walletRepository;
 
     @DisplayName("Test User Repository => givenUser_whenSave_thenReturnEmail")
     @Test
-    void givenUser_whenSave_thenReturnEmail() {
-        User user = UserBuilder.admin().build();
-        when(userRepository.save(user)).thenReturn(user);
+    void givenWallet_whenCreate_shouldReturnWallet() {
+        Wallet wallet = WalletBuilder.wallet().build();
+        when(walletRepository.save(wallet)).thenReturn(wallet);
 
-        User result = userRepository.save(user);
+        Wallet result = walletRepository.save(wallet);
 
-        assertNotNull(result.getEmail());
-        assertEquals(result.getEmail(), user.getEmail());
+        assertNotNull(result);
+        assertEquals(result.getBalance(), wallet.getBalance());
 
     }
 }

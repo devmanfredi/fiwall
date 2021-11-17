@@ -9,29 +9,23 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
-@Entity(name = "users")
-@Data
+@Entity
 @Builder
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
-public class User {
+@NoArgsConstructor
+public class Account {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private UUID id;
 
-    @NotNull
-    private String fullName;
+    private Integer numberAccount;
 
-    @NotNull
-    private String document;
+    private Integer agency;
 
-    @Email
-    private String email;
-
-    @NotNull
-    private String password;
+    private String institution;
 
 }
