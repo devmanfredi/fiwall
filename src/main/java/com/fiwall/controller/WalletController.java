@@ -1,5 +1,8 @@
 package com.fiwall.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fiwall.config.rabbitmq.producer.WalletAMQPConfig;
 import com.fiwall.dto.PaymentDto;
 import com.fiwall.dto.TimelineResponseDTO;
 import com.fiwall.dto.TransferRequestDto;
@@ -11,6 +14,7 @@ import com.fiwall.service.TimelineService;
 import com.fiwall.service.UserService;
 import com.fiwall.service.WalletService;
 import lombok.AllArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -40,6 +44,7 @@ public class WalletController {
     private final WalletService walletService;
     private final AccountService accountService;
     private final TimelineService timelineService;
+    private final RabbitTemplate rabbitTemplate;
 
     @PostMapping(value = "/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -62,7 +67,7 @@ public class WalletController {
 
     @PostMapping(value = "/transfer", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
-    public TransferResponseDto transfer(@RequestBody TransferRequestDto transferRequestDto) {
+    public TransferResponseDto transfer(@RequestBody TransferRequestDto transferRequestDto) throws JsonProcessingException {
         var walletUserSender = walletService.getWallet(transferRequestDto.getSenderId());
         var walletUserReceiver = walletService.getWallet(transferRequestDto.getReceiverId());
 
@@ -81,6 +86,12 @@ public class WalletController {
 
         var timeline = getTimeline(TRANSFER_TRANSACTION, walletUserSender.getBalance().toString(), walletUserSender, transferRequestDto.getValue().toString());
         timelineService.save(timeline);
+
+        Map<String, Object> email = new HashMap<>();
+        email.put("from", "Heuler");
+        email.put("to", "Rabbit");
+        var json = new ObjectMapper().writeValueAsString(email);
+        rabbitTemplate.convertAndSend(WalletAMQPConfig.EXCHANGE_NAME, "", json);
 
         return getTransferReceipt(transferRequestDto, walletUserSender, walletUserReceiver);
     }
