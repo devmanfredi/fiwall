@@ -28,7 +28,7 @@ mvn spring-boot:run
 ```
 
 The H2 database will start running at http://localhost:8080/h2-console
-The app will start running at <http://localhost:8080>
+The app will start running at . You can test them using postman or any other rest client.
 
 #### Test
 
@@ -61,7 +61,7 @@ To Start again the postgres database from the command line using:
 docker start fiwall-db
 ```
 
-The app will start running at <http://localhost:8080>
+The app will start running .You can test them using postman or any other rest client.
 
 #### Production
 
@@ -71,7 +71,7 @@ Execute docker compose
 docker-compose up
 ```
 
-The app will start running at <http://localhost:8080>
+The app will start running .
 
 ## Explore Rest APIs
 
