@@ -1,9 +1,9 @@
 version:'3'
 services:
-  fiwall-api:
-    image: fiwall/fiwall-api
+  fiwall:
+    image: fiwall/fiwall
     network_mode: bridge
-    container_name: fiwall-api
+    container_name: fiwall
     environment:
       - DB_HOST=fiwall-db
       - DB_HOST_PORT=5432
