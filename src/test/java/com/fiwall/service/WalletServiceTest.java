@@ -98,7 +98,7 @@ class WalletServiceTest {
 
         assertNotNull(result);
         result.setBalance(BigDecimal.valueOf(TRANSF_VALUE));
-        when(walletService.getWallet(wallet.getUser().getId())).thenReturn(result);
+        when(walletRepository.findWalletByUserId(wallet.getUser().getId())).thenReturn(Optional.of(result));
         Wallet resultWithTransfer = walletService.getWallet(wallet.getUser().getId());
         assertNotNull(resultWithTransfer);
         assertEquals(result.getBalance(), BigDecimal.valueOf(TRANSF_VALUE));

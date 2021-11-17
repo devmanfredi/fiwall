@@ -101,7 +101,7 @@ class WalletControllerTest {
         when(walletService.getWallet(user.getId())).thenReturn(wallet);
 
         ResultActions perform = mvc.perform(get(PATH_WALLET + "/" + user.getId()));
-        perform.andExpect(status().is(201));
+        perform.andExpect(status().isOk());
 
         perform.andExpect(jsonPath("$.balance", is(25000)));
         perform.andExpect(jsonPath("$.user.id", is(10)));
@@ -137,7 +137,7 @@ class WalletControllerTest {
         ResultActions perform = mvc.perform(post(URI)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(transfReqDto)))
-                .andExpect(status().isCreated());
+                .andExpect(status().is(202));
 
         perform.andExpect(jsonPath("$.receiver", is(walletReceiver.getUser().getFullName())));
         perform.andExpect(jsonPath("$.value", is(10000)));
