@@ -4,7 +4,9 @@ import com.fiwall.builder.account.AccountBuilder;
 import com.fiwall.builder.user.UserBuilder;
 import com.fiwall.builder.wallet.TimelineBuilder;
 import com.fiwall.builder.wallet.WalletBuilder;
+import com.fiwall.config.rabbitmq.RabbitMQConfig;
 import com.fiwall.dto.PaymentDto;
+import com.fiwall.dto.ReceiptTransactionDto;
 import com.fiwall.dto.TransferRequestDto;
 import com.fiwall.model.Account;
 import com.fiwall.model.Timeline;
@@ -15,6 +17,10 @@ import com.fiwall.service.UserService;
 import com.fiwall.service.WalletService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,6 +42,7 @@ import java.util.UUID;
 
 import static com.fiwall.util.TestUtil.convertObjectToJsonBytes;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -50,14 +57,18 @@ class WalletControllerTest {
 
     public static final String PATH_WALLET = "/wallet";
 
+    @MockBean
+    private UserService userService;
+
     @Autowired
     private MockMvc mvc;
 
     @MockBean
-    private UserService userService;
+    private WalletService walletService;
 
     @MockBean
-    private WalletService walletService;
+    private RabbitTemplate rabbitTemplate;
+
 
     @MockBean
     private TimelineRepository timelineRepository;
@@ -127,6 +138,11 @@ class WalletControllerTest {
 
         when(walletService.getWallet(user.getId())).thenReturn(wallet);
         when(walletService.getWallet(u1.getId())).thenReturn(walletReceiver);
+        when(rabbitTemplate.sendAndReceive(
+                eq(RabbitMQConfig.TRANSACTION_EXCHANGE),
+                eq(RabbitMQConfig.ROUTING_KEY),
+                any(Message.class)))
+                .thenReturn(null);
 
         var transfReqDto = new TransferRequestDto();
         transfReqDto.setSenderId(wallet.getUser().getId());
@@ -134,10 +150,11 @@ class WalletControllerTest {
         transfReqDto.setValue(BigDecimal.valueOf(10000));
 
         String URI = "/wallet/transfer";
+
         ResultActions perform = mvc.perform(post(URI)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(convertObjectToJsonBytes(transfReqDto)))
-                .andExpect(status().is(202));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(convertObjectToJsonBytes(transfReqDto)))
+                .andExpect(status().isAccepted());
 
         perform.andExpect(jsonPath("$.receiver", is(walletReceiver.getUser().getFullName())));
         perform.andExpect(jsonPath("$.value", is(10000)));
