@@ -81,6 +81,7 @@ Execute docker compose
 docker-compose up
 ```
 
+
 The app will start running .
 
 ## Explore Rest APIs
