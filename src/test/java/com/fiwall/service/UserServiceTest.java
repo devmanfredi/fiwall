@@ -62,4 +62,11 @@ class UserServiceTest {
 
         assertThrows(ResponseStatusException.class, () -> userService.save(userDto));
     }
+
+    @Test
+    void givenInvalidUserId_whenFindUserById_shouldThrowEntityNotFound() {
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> userService.findUserById(999L));
+    }
 }
