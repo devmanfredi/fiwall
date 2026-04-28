@@ -1,0 +1,36 @@
+name: Discord Notification
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Send Discord Notification
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=format:'%s')
+          COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+          COMMIT_SHA=$(git log -1 --pretty=format:'%h')
+          REPO_NAME="${{ github.repository }}"
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+
+          curl -H "Content-Type: application/json" \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"🚀 Novo push na main\",
+                \"color\": 3066993,
+                \"fields\": [
+                  { \"name\": \"Repositório\", \"value\": \"${REPO_NAME}\", \"inline\": true },
+                  { \"name\": \"Autor\", \"value\": \"${COMMIT_AUTHOR}\", \"inline\": true },
+                  { \"name\": \"Commit\", \"value\": \"[${COMMIT_SHA}](${COMMIT_URL})\", \"inline\": false },
+                  { \"name\": \"Mensagem\", \"value\": \"${COMMIT_MSG}\", \"inline\": false }
+                ]
+              }]
+            }" \
+            "https://discord.com/api/webhooks/1498479472637382767/vrBwurK4uNjyTBGbyjbucRYnJavlyzEK7M2BaiCYqGR2EzZi15qP0NxWpj5RwQPYexrK"
