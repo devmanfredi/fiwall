@@ -10,10 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.server.ResponseStatusException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.when;
+import javax.persistence.EntityNotFoundException;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 
 @SpringBootTest
@@ -40,4 +43,14 @@ class UserServiceTest {
         assertNotNull(result);
         assertEquals(result.getEmail(), user.getEmail());
     }
+
+    @Test
+    void givenDuplicateEmail_whenSave_shouldThrowBadRequest() {
+        UserRequestDto userDto = UserRequestBuilder.usuarioAdmin().build();
+
+        when(userRepository.findByEmail(userDto.getEmail())).thenReturn(Optional.of(new User()));
+
+        assertThrows(ResponseStatusException.class, () -> userService.save(userDto));
+    }
+
 }
