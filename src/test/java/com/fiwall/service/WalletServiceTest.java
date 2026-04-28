@@ -18,9 +18,8 @@ import org.springframework.test.context.ActiveProfiles;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -102,5 +101,17 @@ class WalletServiceTest {
         Wallet resultWithTransfer = walletService.getWallet(wallet.getUser().getId());
         assertNotNull(resultWithTransfer);
         assertEquals(result.getBalance(), BigDecimal.valueOf(TRANSF_VALUE));
+    }
+
+    @Test
+    void givenNewWallet_whenCreate_shouldSetBalanceToZero() {
+        wallet.setUser(user);
+        wallet.setAccount(account);
+
+        when(walletRepository.save(wallet)).thenReturn(wallet);
+
+        Wallet result = walletService.create(wallet);
+
+        assertEquals(BigDecimal.ZERO, result.getBalance());
     }
 }
