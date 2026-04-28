@@ -15,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
+import org.springframework.web.server.ResponseStatusException;
+
 import java.math.BigDecimal;
 import java.util.Optional;
 
@@ -113,5 +115,12 @@ class WalletServiceTest {
         Wallet result = walletService.create(wallet);
 
         assertEquals(BigDecimal.ZERO, result.getBalance());
+    }
+
+    @Test
+    void givenInvalidUserId_whenGetWallet_shouldThrowNotFound() {
+        when(walletRepository.findWalletByUserId(999L)).thenReturn(Optional.empty());
+
+        assertThrows(ResponseStatusException.class, () -> walletService.getWallet(999L));
     }
 }
