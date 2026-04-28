@@ -123,4 +123,14 @@ class WalletServiceTest {
 
         assertThrows(ResponseStatusException.class, () -> walletService.getWallet(999L));
     }
+
+    @Test
+    void givenExistingWallet_whenIsWalletExist_shouldReturnTrue() {
+        user.setId(10L);
+        wallet.setUser(user);
+
+        when(walletRepository.findWalletByUserId(user.getId())).thenReturn(Optional.of(wallet));
+
+        assertTrue(walletService.isWalletExist(user.getId()));
+    }
 }
