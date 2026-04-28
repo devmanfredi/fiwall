@@ -53,4 +53,13 @@ class UserServiceTest {
         assertThrows(ResponseStatusException.class, () -> userService.save(userDto));
     }
 
+    @Test
+    void givenDuplicateDocument_whenSave_shouldThrowBadRequest() {
+        UserRequestDto userDto = UserRequestBuilder.usuarioAdmin().build();
+
+        when(userRepository.findByEmail(userDto.getEmail())).thenReturn(Optional.empty());
+        when(userRepository.findByDocument(userDto.getDocument())).thenReturn(Optional.of(new User()));
+
+        assertThrows(ResponseStatusException.class, () -> userService.save(userDto));
+    }
 }
