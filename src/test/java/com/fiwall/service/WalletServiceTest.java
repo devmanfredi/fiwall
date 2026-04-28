@@ -133,4 +133,11 @@ class WalletServiceTest {
 
         assertTrue(walletService.isWalletExist(user.getId()));
     }
+
+    @Test
+    void givenNonExistingWallet_whenIsWalletExist_shouldReturnFalse() {
+        when(walletRepository.findWalletByUserId(999L)).thenReturn(Optional.empty());
+
+        assertFalse(walletService.isWalletExist(999L));
+    }
 }
